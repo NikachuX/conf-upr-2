@@ -1,6 +1,5 @@
 import requests
 import os
-import json
 
 
 def parse_cargo_toml(path):
