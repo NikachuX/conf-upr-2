@@ -1,12 +1,12 @@
 import sys
-from validate import is_url, validate_args, parse_args
+from validate import validate_args, parse_args
+from parsing import get_toml, get_deps_by_name
 
 
 def main():
     try:
         args = parse_args()
         validate_args(args)
-
     except FileNotFoundError as e:
         print(f"ОШИБКА: {e}", file=sys.stderr)
         sys.exit(2)
@@ -26,9 +26,8 @@ def main():
         "depth": args.depth,
     }
 
-    for k, v in kv.items():
-        print(f"{k} = {v}")
-
+    deps = get_deps_by_name(kv['package'], kv['version'])
+    print(deps)
 
 if __name__ == '__main__':
     main()
