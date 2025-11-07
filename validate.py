@@ -49,7 +49,6 @@ def validate_args(args: argparse.Namespace) -> None:
         if not is_url(args.repo):
             raise ValueError("В режиме 'real' параметр --repo должен быть корректным URL (http/https).")
 
-    # depth: must be integer >= 0. We allow 0 as 'no limit'
     if args.depth is not None:
         if args.depth < 0:
             raise ValueError("Параметр --depth должен быть целым числом >= 0 (0 = без лимита).")
