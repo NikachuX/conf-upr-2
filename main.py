@@ -1,6 +1,7 @@
 import sys
 from validate import validate_args, parse_args
-from parsing import get_toml, get_deps_by_name, build_dependency_graph, print_ascii_tree
+from parsing import (
+    get_toml, get_deps_by_name, build_dependency_graph, print_ascii_tree, get_load_order)
 
 
 def main():
@@ -26,9 +27,14 @@ def main():
         "depth": args.depth,
     }
 
-    graph = build_dependency_graph(kv["package"], max_depth=2)
-    print("\nГраф зависимостей\n")
-    print_ascii_tree(graph, kv["package"])
+    graph = build_dependency_graph("A", test_mode=True, test_file="test_graph.txt", max_depth=4)
+
+    print("\nГраф зависимостей:\n")
+    print_ascii_tree(graph, "A")
+
+    print("\nПорядок загрузки зависимостей:\n")
+    order = get_load_order(graph, "A")
+    print(" → ".join(order))
 
 if __name__ == '__main__':
     main()
