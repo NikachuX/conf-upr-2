@@ -1,6 +1,6 @@
 import sys
 from validate import validate_args, parse_args
-from parsing import get_toml, get_deps_by_name
+from parsing import get_toml, get_deps_by_name, build_dependency_graph, print_ascii_tree
 
 
 def main():
@@ -26,8 +26,9 @@ def main():
         "depth": args.depth,
     }
 
-    deps = get_deps_by_name(kv['package'], kv['version'])
-    print(deps)
+    graph = build_dependency_graph(kv["package"], max_depth=2)
+    print("\nГраф зависимостей\n")
+    print_ascii_tree(graph, kv["package"])
 
 if __name__ == '__main__':
     main()

@@ -53,3 +53,81 @@ def get_deps_by_name(name, version):
     else:
         print(f"Ошибка запроса: {response.status_code}")
         return
+
+
+def parse_test_graph(path):
+    graph = {}
+    with open(path, 'r', encoding='utf-8') as f:
+        for line in f:
+            if not line.strip():
+                continue
+            node, deps = line.strip().split(':')
+            node = node.strip()
+            deps = deps.strip().split() if deps.strip() else []
+            graph[node] = deps
+    return graph
+
+def print_ascii_tree(graph, root, max_depth=10):
+    stack = [(root, 0, [])]  # (текущий узел, глубина, "ветки" для вывода)
+    visited = set()
+
+    while stack:
+        node, depth, branches = stack.pop()
+        prefix = ''
+        for i, is_last in enumerate(branches[:-1]):
+            prefix += '    ' if is_last else '│   '
+        if depth > 0:
+            prefix += '└── ' if branches and branches[-1] else '├── '
+
+        print(prefix + node)
+
+        if depth >= max_depth:
+            continue
+        if node in visited:
+            print(prefix + "   (повтор)")
+            continue
+        visited.add(node)
+
+        deps = graph.get(node, [])
+        for i, dep in enumerate(reversed(deps)):  # reversed чтобы порядок был сверху вниз
+            stack.append((dep, depth + 1, branches + [i == 0]))
+
+def build_dependency_graph(root_name, version="latest", max_depth=3, test_mode=False, test_file=None):
+    if test_mode:
+        test_graph = parse_test_graph(test_file)
+    else:
+        test_graph = None
+
+    graph = {}
+    stack = [(root_name, 0)]
+    visited = set()
+    in_stack = set()
+
+    while stack:
+        package, depth = stack.pop()
+        if package in visited:
+            continue
+
+        visited.add(package)
+        in_stack.add(package)
+
+        if depth >= max_depth:
+            continue
+
+        if test_mode:
+            deps = test_graph.get(package, [])
+        else:
+            deps = get_deps_by_name(package, version) or []
+
+        graph[package] = deps
+
+        for dep in deps:
+            if dep in in_stack:
+                continue
+            elif dep not in visited:
+                stack.append((dep, depth + 1))
+
+        in_stack.remove(package)
+
+    return graph
+
