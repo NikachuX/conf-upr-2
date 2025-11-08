@@ -84,7 +84,7 @@ def print_ascii_tree(graph, root, max_depth=10):
         if depth >= max_depth:
             continue
         if node in visited:
-            print(prefix + "   (повтор)")
+            print(prefix + "   (цикл)")
             continue
         visited.add(node)
 
@@ -130,4 +130,26 @@ def build_dependency_graph(root_name, version="latest", max_depth=3, test_mode=F
         in_stack.remove(package)
 
     return graph
+
+
+def get_load_order(graph, root):
+    visited = set()
+    temp_mark = set()
+    result = []
+
+    def visit(node):
+        if node in visited:
+            return
+        if node in temp_mark:
+            raise RuntimeError(f"Циклическая зависимость обнаружена: {node}")
+        temp_mark.add(node)
+        for dep in graph.get(node, []):
+            visit(dep)
+        temp_mark.remove(node)
+        visited.add(node)
+        result.append(node)
+
+    visit(root)
+    return result[::-1]
+
 
