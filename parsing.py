@@ -68,7 +68,7 @@ def parse_test_graph(path):
     return graph
 
 def print_ascii_tree(graph, root, max_depth=10):
-    stack = [(root, 0, [])]  # (текущий узел, глубина, "ветки" для вывода)
+    stack = [(root, 0, [])]
     visited = set()
 
     while stack:
