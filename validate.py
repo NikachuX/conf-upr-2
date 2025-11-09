@@ -10,7 +10,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--mode", "-m", choices=["real", "test"], default="real", help="Режим работы: real или test (по умолчанию: real)")
     p.add_argument("--version", "-v", default="latest", help="Версия пакета (например 1.0.0) или 'latest' (по умолчанию: latest)")
     p.add_argument("--ascii", "-a", action="store_true", help="Включить режим вывода зависимостей в формате ASCII-дерева")
-    p.add_argument("--depth", "-d", type=int, default=0, help="Максимальная глубина анализа зависимостей (0 = без лимита)")
+    p.add_argument("--depth", "-d", type=int, default=0, help="Максимальная глубина анализа зависимостей")
 
     args = p.parse_args()
     return args
@@ -35,7 +35,6 @@ def validate_args(args: argparse.Namespace) -> None:
 
     # repo: if mode test -> expect a local path; if real -> expect URL
     if args.mode == "test":
-        # локальный путь обязателен
         if not args.repo:
             raise ValueError("В тестовом режиме (--mode test) параметр --repo должен указывать путь к файлу тестового репозитория.")
         if not os.path.exists(args.repo):
@@ -43,7 +42,6 @@ def validate_args(args: argparse.Namespace) -> None:
         if not os.path.isfile(args.repo):
             raise ValueError(f"Ожидался путь к файлу, а не к каталогу: {args.repo}")
     else:
-        # real mode
         if not args.repo:
             raise ValueError("Параметр --repo обязателен и должен быть URL-адресом репозитория в режиме 'real'.")
         if not is_url(args.repo):
